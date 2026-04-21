@@ -1,17 +1,16 @@
--- FIRE ANTI LAG: UNIVERSAL EDITION (OFFICIAL RELEASE)
--- Discord: discord.gg/RBMrFxbbSb
+-- FIRE ANTI LAG: UNIVERSAL EDITION (NO WAIT - FIXED IMAGE)
+-- Optimizado para carga instantánea y máxima compatibilidad
 
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 local player = game.Players.LocalPlayer
 local pgui = player:WaitForChild("PlayerGui")
 local HttpService = game:GetService("HttpService")
-local MiDiscord = "discord.gg/RBMrFxbbSb" 
 local SaveFile = "FireSettings_V1.json"
 
 local Settings = {UltraAntiLag = false, FPSBooster = false}
 
--- --- SISTEMA DE COMPATIBILIDAD ---
+-- --- SISTEMA DE GUARDADO ---
 local function SafeWrite(file, data)
     pcall(function() if writefile then writefile(file, data) end end)
 end
@@ -22,19 +21,23 @@ local function SafeRead(file)
     return data
 end
 
--- --- FUNCIONES DE OPTIMIZACIÓN (TOTAL PLASTIC) ---
+-- --- FUNCIONES DE OPTIMIZACIÓN (BACKGROUND THREAD) ---
 local function ApplyUltra()
-    for _, v in pairs(game:GetDescendants()) do
-        pcall(function()
-            if v:IsA("BasePart") or v:IsA("MeshPart") then
-                v.Material = Enum.Material.Plastic
-                v.Reflectance = 0
-                if v:IsA("MeshPart") then v.TextureID = "" end
-            elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                v:Destroy()
-            end
-        end)
-    end
+    task.spawn(function()
+        local objects = game:GetDescendants()
+        for i, v in pairs(objects) do
+            if i % 100 == 0 then task.wait() end -- Evita lag al aplicar
+            pcall(function()
+                if v:IsA("BasePart") or v:IsA("MeshPart") then
+                    v.Material = Enum.Material.Plastic
+                    v.Reflectance = 0
+                    if v:IsA("MeshPart") then v.TextureID = "" end
+                elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                    v:Destroy()
+                end
+            end)
+        end
+    end)
 end
 
 local function ApplyFPS()
@@ -45,8 +48,6 @@ local function ApplyFPS()
                 for _, item in pairs(p.Character:GetDescendants()) do
                     if item:IsA("Shirt") or item:IsA("Pants") or item:IsA("Accessory") then
                         item:Destroy()
-                    elseif item:IsA("Humanoid") then
-                        for _, track in pairs(item:GetPlayingAnimationTracks()) do track:Stop() end
                     end
                 end
             end
@@ -58,36 +59,45 @@ end
 if pgui:FindFirstChild("FireUniversal") then pgui.FireUniversal:Destroy() end
 local sg = Instance.new("ScreenGui", pgui); sg.Name = "FireUniversal"; sg.ResetOnSpawn = false
 
--- Botón F Movible
-local OpenBtn = Instance.new("TextButton", sg)
-OpenBtn.Size = UDim2.new(0, 45, 0, 45); OpenBtn.Position = UDim2.new(0.02, 0, 0.45, 0)
-OpenBtn.BackgroundColor3 = Color3.fromRGB(180, 0, 0); OpenBtn.Text = "F"
-OpenBtn.TextColor3 = Color3.new(1, 1, 1); OpenBtn.Font = Enum.Font.GothamBold; OpenBtn.TextSize = 20
-Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(0, 8)
-Instance.new("UIStroke", OpenBtn).Color = Color3.fromRGB(255, 50, 50)
-
--- Menú (Clon ICE)
 local Main = Instance.new("Frame", sg)
 Main.Size = UDim2.new(0, 190, 0, 190); Main.Position = UDim2.new(0.25, 0, 0.4, 0)
-Main.BackgroundColor3 = Color3.fromRGB(5, 5, 5); Main.Visible = false; Main.Active = true
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10); Main.Visible = false; Main.Active = true
 Instance.new("UICorner", Main); Instance.new("UIStroke", Main).Color = Color3.fromRGB(255, 0, 0)
 
--- Función Drag Universal
+-- BOTÓN CON ICONO DE FUEGO OFICIAL (NO SE BORRA)
+local OpenBtn = Instance.new("ImageButton", sg)
+OpenBtn.Size = UDim2.new(0, 50, 0, 50)
+OpenBtn.Position = UDim2.new(0.02, 0, 0.45, 0)
+OpenBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+-- Este ID es fuego oficial de la librería de Roblox, carga siempre:
+OpenBtn.Image = "rbxassetid://10734950309" 
+OpenBtn.ImageColor3 = Color3.fromRGB(255, 60, 0) -- Tinte naranja/rojo fuego
+OpenBtn.ScaleType = Enum.ScaleType.Fit
+Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(0, 12)
+local Stroke = Instance.new("UIStroke", OpenBtn)
+Stroke.Color = Color3.fromRGB(255, 0, 0)
+Stroke.Thickness = 2
+
+-- Función Drag Robusta (Mejorada)
 local function Drag(obj)
-    local inputService = game:GetService("UserInputService")
-    local dragging, dragInput, dragStart, startPos
+    local UIS = game:GetService("UserInputService")
+    local dragging, dragStart, startPos
     obj.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true; dragStart = input.Position; startPos = obj.Position
         end
     end)
-    inputService.InputChanged:Connect(function(input)
+    UIS.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             obj.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-    obj.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end end)
+    obj.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
 end
 Drag(OpenBtn); Drag(Main)
 
@@ -95,7 +105,6 @@ local Title = Instance.new("TextLabel", Main)
 Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "FIRE ANTI LAG"; Title.TextColor3 = Color3.fromRGB(255, 50, 50)
 Title.BackgroundTransparency = 1; Title.Font = Enum.Font.GothamBold; Title.TextSize = 14
 
--- Botonera
 local function CreateButton(name, pos, color, cb)
     local btn = Instance.new("TextButton", Main)
     btn.Size = UDim2.new(0.85, 0, 0, 35); btn.Position = UDim2.new(0.075, 0, 0, pos)
@@ -118,22 +127,17 @@ CreateButton("FPS BOOSTER", 90, Color3.fromRGB(255, 0, 0), function()
 end)
 
 CreateButton("COPIAR DISCORD", 135, Color3.fromRGB(88, 101, 242), function()
-    if setclipboard then 
-        setclipboard(MiDiscord)
-        Title.Text = "¡COPIADO!"
-        task.wait(1)
-        Title.Text = "FIRE ANTI LAG"
-    end
+    if setclipboard then setclipboard("discord.gg/RBMrFxbbSb") end
 end)
 
--- --- AUTO-LOAD AL ENTRAR ---
+-- --- AUTO-LOAD ---
 local savedData = SafeRead(SaveFile)
 if savedData then
     local success, decoded = pcall(HttpService.JSONDecode, HttpService, savedData)
     if success then
         Settings = decoded
-        if Settings.UltraAntiLag then task.spawn(ApplyUltra) end
-        if Settings.FPSBooster then task.spawn(ApplyFPS) end
+        if Settings.UltraAntiLag then ApplyUltra() end
+        if Settings.FPSBooster then ApplyFPS() end
     end
 end
 
